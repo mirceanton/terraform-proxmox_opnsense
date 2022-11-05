@@ -37,14 +37,14 @@ resource "proxmox_vm_qemu" "opnsense" {
   # =============================================
   # STORAGE
   # =============================================
-  scsihw   = "{{ opnsense_vm_scsihw | default('virtio-scsi-pci') }}
-  bootdisk = "{{ opnsense_vm_bootdisk | default('scsi0') }}
-  boot     = "{{ opnsense_vm_boot_order | default('cdn') }}
+  scsihw   = "{{ opnsense_vm_scsihw | default('virtio-scsi-pci') }}"
+  bootdisk = "{{ opnsense_vm_bootdisk | default('scsi0') }}"
+  boot     = "{{ opnsense_vm_boot_order | default('cdn') }}"
 
   {% for disk in opnsense_vm_disks %}
   disk {
     type    = "{{ disk.type | default('scsi') }}"
-    size    = {{ disk.size }}
+    size    = "{{ disk.size }}"
     storage = {{ disk.storage }}
 
     backup   = {{ disk.backup | default(1) }}
