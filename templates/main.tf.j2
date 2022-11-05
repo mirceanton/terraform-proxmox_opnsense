@@ -4,7 +4,7 @@ resource "proxmox_vm_qemu" "opnsense" {
   # =============================================
   name        = "{{ opnsense_vm_name | default('opnSense') }}"
   target_node = "{{ opnsense_vm_target_node }}"
-  vmid        = {{ opnsense_vm_id }}
+  vmid        = {{ opnsense_vm_id | default(100) }}
   onboot      = {{ opnsense_vm_autoboot | default(true) }}
   agent       = 0
 
