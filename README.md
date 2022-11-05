@@ -67,13 +67,14 @@ They are intended to be formatted by an Ansible task, such as:
 ``` yml
 - name: Provision an opnSense VM
   hosts: localhost
+  become: true
   gather_facts: false
 
   vars:
-    proxmox_api_url: https://1.2.3.4:8006/api2/json
-    proxmox_api_token_id: <your-token-id-here>
-    proxmox_api_token_secret: <your-token-secret-here>
-    opnsense_vm_target_node: pve-01
+    proxmox_api_url: "https://1.2.3.4:8006/api2/json"
+    proxmox_api_token_id: "your token id here"
+    proxmox_api_token_secret: "your-token-secret-here"
+    opnsense_vm_target_node: pve01
     opnsense_vm_id: 100
     opnsense_vm_clone: opnSense-tpl
     opnsense_vm_networks:
@@ -88,21 +89,27 @@ They are intended to be formatted by an Ansible task, such as:
     - name: Clone the terraform-proxmox_opnsense repo
       ansible.builtin.git:
         repo: https://github.com/mirceanton/terraform-proxmox_opnsense
-        dest: /opt/terraform-proxmox_opnsense 
+        dest: /opt/terraform-proxmox_opnsense
+
+    - name: Create template output directory
+      ansible.builtin.file:
+        path: /opt/terraform-proxmox_opnsense/template-output
+        state: directory
 
     - name: Templatize provider file
       ansible.builtin.template:
-        src: /opt/terraform-proxmox_opnsense/templates/provider.tf.js
+        src: /opt/terraform-proxmox_opnsense/templates/provider.tf.j2
         dest: /opt/terraform-proxmox_opnsense/template-output/provider.tf
 
     - name: Templatize resource file
       ansible.builtin.template:
-        src: /opt/terraform-proxmox_opnsense/templates/main.tf.js
+        src: /opt/terraform-proxmox_opnsense/templates/main.tf.j2
         dest: /opt/terraform-proxmox_opnsense/template-output/main.tf
 
     - name: Run Terraform
       community.general.terraform:
         project_path: /opt/terraform-proxmox_opnsense/template-output
+        force_init: true
 ```
 
 ### Variables
