@@ -5,7 +5,7 @@ resource "proxmox_vm_qemu" "opnsense" {
   name        = "{{ opnsense_vm_name | default('opnSense') }}"
   target_node = "{{ opnsense_vm_target_node }}"
   vmid        = {{ opnsense_vm_id | default(100) }}
-  onboot      = {{ opnsense_vm_autoboot | default(true) }}
+  onboot      = {{ opnsense_vm_autoboot | default(true) | string | lower }}
   agent       = 0
 
   clone      = "{{ opnsense_vm_clone }}"
@@ -29,7 +29,7 @@ resource "proxmox_vm_qemu" "opnsense" {
   {% for nic in opnsense_vm_networks %}
   network {
     bridge   = "{{ nic.bridge }}"
-    firewall = {{ nic.firewall_enabled | default(false) }}
+    firewall = {{ nic.firewall_enabled | default(false) | string | lower }}
     model    = "{{ nic.model | default('virtio' ) }}"
   }
   {% endfor %}
@@ -45,7 +45,7 @@ resource "proxmox_vm_qemu" "opnsense" {
   disk {
     type    = "{{ disk.type | default('scsi') }}"
     size    = "{{ disk.size }}"
-    storage = {{ disk.storage }}
+    storage = "{{ disk.storage }}"
 
     backup   = {{ disk.backup | default(1) }}
     iothread = {{ disk.iothread | default(1) }}
