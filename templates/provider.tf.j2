@@ -1,0 +1,20 @@
+# ===============================================
+# Terraform configuration
+# ===============================================
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "2.9.10"
+    }
+  }
+}
+
+# ===============================================
+# Proxmox Provider Configuration
+# ===============================================
+provider "proxmox" {
+  pm_api_url          = "{{ proxmox_api_url }}"
+  pm_api_token_id     = "{{ proxmox_api_token_id }}"
+  pm_api_token_secret = "{{ proxmox_api_token_secret }}"
+}
