@@ -1,0 +1,66 @@
+resource "proxmox_vm_qemu" "opnsense" {
+  # =============================================
+  # GENERAL
+  # =============================================
+  name        = "{{ opnsense_vm_name | default('opnSense') }}"
+  target_node = "{{ opnsense_vm_target_node }}"
+  vmid        = {{ opnsense_vm_id | default(100) }}
+  onboot      = {{ opnsense_vm_autoboot | default(true) | string | lower }}
+  agent       = 0
+
+  clone      = "{{ opnsense_vm_clone }}"
+  full_clone = true
+
+  # =============================================
+  # CPU
+  # =============================================
+  cpu   = "{{ opnsense_vm_cpu_type | default('host') }}"
+  cores = {{ opnsense_vm_cpu_cores | default(2) }}
+
+  # =============================================
+  # MEMORY
+  # =============================================
+  memory  = {{ opnsense_vm_memory | default(2048) }}
+  balloon = 0
+
+  # =============================================
+  # NETWORK
+  # =============================================
+  {% for nic in opnsense_vm_networks %}
+  network {
+    bridge   = "{{ nic.bridge }}"
+    firewall = {{ nic.firewall_enabled | default(false) | string | lower }}
+    model    = "{{ nic.model | default('virtio' ) }}"
+  }
+  {% endfor %}
+
+  # =============================================
+  # STORAGE
+  # =============================================
+  scsihw   = "{{ opnsense_vm_scsihw | default('virtio-scsi-pci') }}"
+  bootdisk = "{{ opnsense_vm_bootdisk | default('scsi0') }}"
+  boot     = "{{ opnsense_vm_boot_order | default('cdn') }}"
+
+  {% for disk in opnsense_vm_disks %}
+  disk {
+    type    = "{{ disk.type | default('scsi') }}"
+    size    = "{{ disk.size }}"
+    storage = "{{ disk.storage }}"
+
+    backup   = {{ disk.backup | default(1) }}
+    iothread = {{ disk.iothread | default(1) }}
+    ssd      = {{ disk.ssd | default(1) }}
+  }
+  {% endfor %}
+
+  vga {
+    type   = "{{ opnsense_vm_vga_type | default('qxl') }}"
+    memory = {{ opnsense_vm_vga_memory | default(64) }}
+  }
+  
+  lifecycle {
+    ignore_changes = [
+      desc
+    ]
+  }
+}

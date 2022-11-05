@@ -57,4 +57,10 @@ resource "proxmox_vm_qemu" "opnsense" {
     type   = "qxl"
     memory = 64
   }
+
+  lifecycle {
+    ignore_changes = [
+      desc
+    ]
+  }
 }
