@@ -57,4 +57,10 @@ resource "proxmox_vm_qemu" "opnsense" {
     type   = "{{ opnsense_vm_vga_type | default('qxl') }}"
     memory = {{ opnsense_vm_vga_memory | default(64) }}
   }
+  
+  lifecycle {
+    ignore_changes = [
+      desc
+    ]
+  }
 }
