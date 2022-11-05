@@ -1,0 +1,27 @@
+---
+name: Validate Terraform Code
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download Terraform Binary
+        run: |
+          sudo apt install -y wget unzip
+          wget https://releases.hashicorp.com/terraform/1.3.4/terraform_1.3.4_linux_amd64.zip
+          unzip terraform_1.3.4_linux_amd64.zip
+          rm terraform_1.3.4_linux_amd64.zip
+
+      - name: Run terraform fmt
+        run: |
+          [ $(./terraform fmt . | wc -l) == 0 ]
