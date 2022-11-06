@@ -142,8 +142,8 @@ opnsense_vm_vga_memory: 64          # [Optional] Sets the VGA memory (in MiB). H
 opnsense_vm_disks:                  # [Required] List of disks to assign to the VM
   - type: scsi    # [Optional] The type of disk device to add.
                   # Options: ide, sata, scsi, virtio
-    size:         # [Required] The name of the storage pool on which to store the disk.
-    storage:      # [Required] The size of the created disk.
+    storage:      # [Required] The name of the storage pool on which to store the disk.
+    size:         # [Required] The size of the created disk.
                   # Format must match the regex \d+[GMK], where G, M, and K represent Gigabytes, Megabytes, and Kilobytes respectively.
     backup: 1     # [Optional] Whether the drive should be included when making backups.
     iothread: 1   # [Optional] Whether to use iothreads for this drive.
