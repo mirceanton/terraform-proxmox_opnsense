@@ -30,3 +30,5 @@ override.tf.json
 
 # Ignore the lock file
 .terraform.lock.hcl
+
+template-output/
