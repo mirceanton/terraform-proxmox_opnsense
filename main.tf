@@ -1,56 +1,51 @@
-resource "proxmox_vm_qemu" "opnsense" {
-  # =============================================
-  # GENERAL
-  # =============================================
+resource "proxmox_virtual_environment_pool" "networking_services_pool" {
+  pool_id = "networking"
+}
+
+resource "proxmox_virtual_environment_vm" "opnsense" {
   name        = var.name
-  target_node = var.target_node
-  vmid        = var.vmid
-  onboot      = var.auto_boot
-  agent       = 0
+  description = var.description
 
-  clone      = var.clone_name
-  full_clone = true
+  node_name = var.target_node
+  vm_id     = var.vmid
+  on_boot   = var.auto_boot
 
-  # =============================================
-  # CPU
-  # =============================================
-  cpu   = "host"
-  cores = var.cpu
+  pool_id = proxmox_virtual_environment_pool.networking_services_pool.pool_id
 
-  # =============================================
-  # MEMORY
-  # =============================================
-  memory  = var.memory
-  balloon = 0
+  agent {
+    enabled = false
+  }
+
+  clone {
+    vm_id = var.clone_id
+  }
+
+  cpu {
+    cores = var.cpu_cores
+    type  = "host"
+  }
+
+  memory {
+    dedicated = var.memory
+  }
 
   # =============================================
   # NETWORK
   # =============================================
-  network { # LAN
-    bridge   = var.lan_vmbridge
-    firewall = false
-    model    = "virtio"
+  network_device {
+    bridge = var.lan_vmbridge
   }
-  network { # WAN
-    bridge   = var.wan_vmbridge
-    firewall = false
-    model    = "virtio"
+  network_device {
+    bridge = var.wan_vmbridge
   }
 
   # =============================================
   # STORAGE
   # =============================================
-  scsihw   = "virtio-scsi-pci"
-  bootdisk = "scsi0"
-  boot     = "cdn"
   disk {
-    type    = "scsi"
-    size    = var.disk_size
-    storage = var.disk_storage
-
-    backup   = 1
-    iothread = 1
-    ssd      = 1
+    datastore_id = var.disk_storage
+    interface    = "scsi0"
+    size         = var.disk_size
   }
 
   vga {
@@ -60,7 +55,9 @@ resource "proxmox_vm_qemu" "opnsense" {
 
   lifecycle {
     ignore_changes = [
-      desc
+      network_interface_names,
+      ipv4_addresses,
+      ipv6_addresses
     ]
   }
 }

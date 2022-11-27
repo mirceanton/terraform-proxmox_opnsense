@@ -1,66 +1,83 @@
-resource "proxmox_vm_qemu" "opnsense" {
+{% if opnsense_pool_name is defined %}
+resource "proxmox_virtual_environment_pool" "networking_services_pool" {
+  pool_id = "{{ opnsense_pool_name }}"
+}
+{% endif %}
+
+resource "proxmox_virtual_environment_vm" "opnsense" {
   # =============================================
   # GENERAL
   # =============================================
-  name        = "{{ opnsense_vm_name | default('opnSense') }}"
-  target_node = "{{ opnsense_vm_target_node }}"
-  vmid        = {{ opnsense_vm_id | default(100) }}
-  onboot      = {{ opnsense_vm_autoboot | default(true) | string | lower }}
-  agent       = 0
+  name        = "{{ opnsense_vm_name }}"
+  description = "{{ opnsense_vm_description | default('') }}"
 
-  clone      = "{{ opnsense_vm_clone }}"
-  full_clone = true
+  node_name = "{{ opnsense_vm_target_node }}"
+  vm_id     = {{ opnsense_vm_id }}
+  on_boot   = {{ opnsense_vm_autoboot | default(true) | string | lower }}
+
+  {% if opnsense_pool_name is defined %}
+  pool_id = proxmox_virtual_environment_pool.networking_services_pool.pool_id
+  {% endif %}
+
+  agent {
+    enabled = false
+  }
+
+  clone {
+    vm_id = {{ opnsense_vm_clone_id }}
+  }
 
   # =============================================
-  # CPU
+  # RESOURCES
   # =============================================
-  cpu   = "{{ opnsense_vm_cpu_type | default('host') }}"
-  cores = {{ opnsense_vm_cpu_cores | default(2) }}
+  cpu {
+    cores = {{ opnsense_cpu_cores | default(4) }}
+    type  = "{{ opnsense_vm_cpu_type | default('host') }}"
+  }
+
+  memory {
+    dedicated = {{ opnsense_vm_memory | default(8192) }}
+  }
 
   # =============================================
-  # MEMORY
+  # STORAGE
   # =============================================
-  memory  = {{ opnsense_vm_memory | default(2048) }}
-  balloon = 0
+  {% for disk in opnsense_vm_disks %}
+
+  disk {
+    datastore_id = "{{ disk.storage }}"
+    size         = "{{ disk.size }}"
+    interface    = "scsi{{ loop.index - 1 }}"
+  }
+  {% endfor %}
 
   # =============================================
   # NETWORK
   # =============================================
   {% for nic in opnsense_vm_networks %}
-  network {
+
+  network_device {
     bridge   = "{{ nic.bridge }}"
-    firewall = {{ nic.firewall_enabled | default(false) | string | lower }}
     model    = "{{ nic.model | default('virtio' ) }}"
   }
   {% endfor %}
 
   # =============================================
-  # STORAGE
+  # VIDEO DEVICE
   # =============================================
-  scsihw   = "{{ opnsense_vm_scsihw | default('virtio-scsi-pci') }}"
-  bootdisk = "{{ opnsense_vm_bootdisk | default('scsi0') }}"
-  boot     = "{{ opnsense_vm_boot_order | default('cdn') }}"
-
-  {% for disk in opnsense_vm_disks %}
-  disk {
-    type    = "{{ disk.type | default('scsi') }}"
-    size    = "{{ disk.size }}"
-    storage = "{{ disk.storage }}"
-
-    backup   = {{ disk.backup | default(1) }}
-    iothread = {{ disk.iothread | default(1) }}
-    ssd      = {{ disk.ssd | default(1) }}
-  }
-  {% endfor %}
-
   vga {
-    type   = "{{ opnsense_vm_vga_type | default('qxl') }}"
-    memory = {{ opnsense_vm_vga_memory | default(64) }}
+    type   = "qxl"
+    memory = 64
   }
-  
+
+  # =============================================
+  # MISC
+  # =============================================
   lifecycle {
     ignore_changes = [
-      desc
+      network_interface_names,
+      ipv4_addresses,
+      ipv6_addresses
     ]
   }
 }

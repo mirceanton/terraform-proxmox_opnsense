@@ -18,9 +18,14 @@ variable "name" {
   description = "The name of the VM."
 }
 
-variable "clone_name" {
+variable "description" {
   type        = string
-  default     = "opnSense-tpl"
+  default     = ""
+  description = "The description of the VM."
+}
+
+variable "clone_id" {
+  type        = number
   description = "The name of the VM to clone."
 }
 
@@ -33,10 +38,16 @@ variable "auto_boot" {
 # =============================================
 # Resources
 # =============================================
-variable "cpu" {
+variable "cpu_cores" {
   type        = number
   default     = 2
   description = "The number of cpu cores to allocate to the VM."
+}
+
+variable "cpu_type" {
+  type        = string
+  default     = "host"
+  description = "The emulated CPU type."
 }
 
 variable "memory" {
