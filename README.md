@@ -78,12 +78,12 @@ They are intended to be formatted by an Ansible task, such as:
     opnsense_vm_target_node: pve01
     opnsense_pool_name: Networking
     opnsense_vm_id: 100
-    opnsense_vm_clone: opnSense-tpl
+    opnsense_vm_clone_id: 1100
     opnsense_vm_networks:
       - bridge: vmbr0 # WAN
       - bridge: vmbr1 # LAN
     opnsense_vm_disks:
-      - size: 32G
+      - size: 32
         storage: local-zfs
 
   tasks:
@@ -119,40 +119,34 @@ For more details on certain variables, refer to the official module [documentati
 
 ``` yml
 # Proxmox Connection Params
-proxmox_api_url:                    # [Required] The URL for the Proxmox API endpoint
-                                    # Format: https://a.b.c.d:8006/api2/json
-pm_api_token_id:                    # [Required] The access token ID
-pm_api_token_secret:                # [Required] The access token secret
+proxmox_url:          # [Required] The URL for the Proxmox API endpoint
+                      # Format: https://a.b.c.d:8006
+proxmox_username:     # [Required] The username to authenticate
+proxmox_password:     # [Required] The password for the given username
 
 # opnSense VM Params
 opnsense_vm_name: opnSense          # [Optional] The name of the VM
-opnsense_vm_target_node:            # [Required] The name of the node on which to deploy the VM
 opnsense_vm_id: 100                 # [Optional] The ID of the VM
+
+opnsense_vm_target_node:            # [Required] The name of the node on which to deploy the VM
 opnsense_vm_autoboot: true          # [Optional] Whether or not to start the VM on boot
-opnsense_vm_clone: opnSense-tpl     # [Optional] The name of the VM to clone
+
+opnsense_vm_clone_id: 1100          # [Optional] The name of the VM to clone
+
 opnsense_vm_cpu_type: host          # [Optional] The type of CPU to assign to the VM
 opnsense_vm_cpu_cores: 2            # [Optional] The number of threads to assign to the VM
 opnsense_vm_memory: 2048            # [Optional] The amount of RAM in mb to assign to the VM
-opnsense_vm_scsihw: virtio-scsi-pci # [Optional] The type of SCSI hardware
-opnsense_vm_bootdisk: scsi0         # [Optional] The name of the boot disk
-opnsense_vm_boot_order: cdn         # [Optional] Device boot order (disk -> dvd -> network)
-                                    # Options: floppy (a), hard disk (c), CD-ROM (d), or network (n).
+
 opnsense_vm_vga_type: qxl           # [Optional] The type of VGA device.
                                     # Options: cirrus, none, qxl, qxl2, qxl3, qxl4, serial0, serial1, serial2, serial3, std, virtio, vmware.
 opnsense_vm_vga_memory: 64          # [Optional] Sets the VGA memory (in MiB). Has no effect with serial display type.
-opnsense_vm_disks:                  # [Required] List of disks to assign to the VM
-  - type: scsi    # [Optional] The type of disk device to add.
-                  # Options: ide, sata, scsi, virtio
-    storage:      # [Required] The name of the storage pool on which to store the disk.
-    size:         # [Required] The size of the created disk.
-                  # Format must match the regex \d+[GMK], where G, M, and K represent Gigabytes, Megabytes, and Kilobytes respectively.
-    backup: 1     # [Optional] Whether the drive should be included when making backups.
-    iothread: 1   # [Optional] Whether to use iothreads for this drive.
-    ssd: 1        # [Optional] Whether to expose this drive as an SSD, rather than a rotational hard disk.
-opnsense_vm_networks:           # [Required] List of network devices
-  - bridge:         # [Required] The name of the network bridge to attach to. (vmbr0, vmbr1 etc)
-    firewall: true  # [Optional] Whether or not to 
-    model: virtio   # [Optional] The NIC model
+
+truenas_vm_disks:                  # [Required] List of disks to assign to the VM 
+  - size: 32              # [Required] The size of the disk in Gb
+    storage: "local-zfs"  # [Required] The storage device for the VM
+truenas_vm_networks:           # [Required] List of network devices
+  - bridge: vmbr0     # [Required] The name of the network bridge to attach to. (vmbr0, vmbr1 etc)
+  - bridge: vmbr1     # [Required] The name of the network bridge to attach to. (vmbr0, vmbr1 etc)
 ```
 
 ## License
