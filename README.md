@@ -20,7 +20,7 @@ To create the VM template, take a look at this [packer template](https://github.
 
 ### Variables
 
-Here's an empty sample for the `.auto.pkrvars.hcl` file, for you to customize:
+Here's an empty sample for the `.auto.tfvars` file, for you to customize:
 
 ``` hcl
 # =============================================
@@ -71,16 +71,17 @@ They are intended to be formatted by an Ansible task, such as:
   gather_facts: false
 
   vars:
-    proxmox_api_url: "https://1.2.3.4:8006/api2/json"
-    proxmox_api_token_id: "your token id here"
-    proxmox_api_token_secret: "your-token-secret-here"
+    proxmox_url: "https://1.2.3.4:8006"
+    proxmox_username: "root"
+    proxmox_password: "test123"
+    opnsense_vm_name: OPNsense
     opnsense_vm_target_node: pve01
+    opnsense_pool_name: Networking
     opnsense_vm_id: 100
     opnsense_vm_clone: opnSense-tpl
     opnsense_vm_networks:
       - bridge: vmbr0 # WAN
       - bridge: vmbr1 # LAN
-      - bridge: vmbr2 # DMZ
     opnsense_vm_disks:
       - size: 32G
         storage: local-zfs
